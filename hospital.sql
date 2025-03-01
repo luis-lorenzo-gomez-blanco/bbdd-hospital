@@ -2,6 +2,55 @@ DROP DATABASE IF EXISTS hospital;
 CREATE DATABASE IF NOT EXISTS hospital;
 ---
 
+-- Tabla trabajador
+DROP TABLE IF EXISTS trabajador;
+CREATE TABLE IF NOT EXISTS trabajador (
+  numero_colegiado INT (9) NOT NULL,
+  nif CHAR (9) NOT NULL,
+  nombre VARCHAR (25) NOT NULL,
+  apellido1 VARCHAR (25) NOT NULL,
+  apellido2 VARCHAR (25),
+  -- VISTA apellidos
+  sexo ENUM('H','M'),
+  telefono VARCHAR (15),
+  direccion VARCHAR (50),
+  localidad VARCHAR (50),
+  provincia VARCHAR (50),
+  pais VARCHAR (50),
+  activo CHAR (1),
+  foto BLOB,
+  passwd VARCHAR (128),
+  -- Tipo 'M'edico / 'E'nfermera
+  tipo CHAR (1) NOT NULL,
+  CONSTRAINT pk_trabajador PRIMARY KEY (numero_colegiado),
+  CONSTRAINT un_tra_nif UNIQUE (nif),
+  CONSTRAINT chk_tra_sexo CHECK (sexo <> ''),
+  CONSTRAINT chk_tra_activo CHECK (activo = 'S' OR activo = 'N'),
+  CONSTRAINT chk_tra_tipo CHECK (tipo = 'M' OR activo = 'E')
+);
+
+-- Tabla médico
+DROP TABLE IF EXISTS medico;
+CREATE TABLE IF NOT EXISTS medico (
+  numero_colegiado INT (9) NOT NULL,
+  CONSTRAINT pk_medico PRIMARY KEY (numero_colegiado),
+  CONSTRAINT fk_med_num_col_tra_num_col FOREIGN KEY (numero_colegiado)
+    REFERENCES trabajador (numero_colegiado)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+  );
+  
+-- Tabla enfermera
+DROP TABLE IF EXISTS enfermera;
+CREATE TABLE IF NOT EXISTS enfermera (
+  numero_colegiado INT (9) NOT NULL,
+  CONSTRAINT pk_enfermera PRIMARY KEY (numero_colegiado),
+  CONSTRAINT fk_enf_num_col_tra_num_col FOREIGN KEY (numero_colegiado)
+    REFERENCES trabajador (numero_colegiado)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
 -- Tabla paciente
 DROP TABLE IF EXISTS paciente;
 CREATE TABLE IF NOT EXISTS paciente (
@@ -53,11 +102,15 @@ CREATE TABLE IF NOT EXISTS linea_historial (
   historial INT (8) NOT NULL,
   linea INT (6) NOT NULL AUTO_INCREMENT,
   fecha DATE NOT NULL,
-  firma NOT NULL
+  firma INT (9) NOT NULL
   CONSTRAINT pk_lin_his PRIMARY KEY (historial,linea),
   CONSTRAINT fk_lin_his_his_his_id FOREIGN KEY (historial)
     REFERENCES historial (id)
     ON DELETE CASCADE
+    ON UPDATE CASCADE
+  CONSTRAINT fk_lin_his_fir_tra_num_col FOREIGN KEY (firma)
+    REFERENCES trabajador (numero_colegiado)
+    ON DELETE RESTRICT
     ON UPDATE CASCADE
 );
 
