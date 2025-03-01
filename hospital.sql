@@ -1,6 +1,75 @@
 DROP DATABASE IF EXISTS hospital;
 CREATE DATABASE IF NOT EXISTS hospital;
 ---
+
+-- Tabla paciente
+DROP TABLE IF EXISTS paciente;
+CREATE TABLE IF NOT EXISTS paciente (
+  nss INT (8) NOT NULL,
+  nombre VARCHAR (25) NOT NULL,
+  apellido1 VARCHAR (25) NOT NULL,
+  apellido2 VARCHAR (25),
+  -- VISTA apellidos
+  fecha_nacimiento DATE NOT NULL,
+  sexo ENUM('H','M'),
+  telefono VARCHAR (15),
+  direccion VARCHAR (50),
+  localidad VARCHAR (50),
+  provincia VARCHAR(50),
+  pais VARCHAR (50),
+  seguro VARCHAR (50),
+  numero_seguro VARCHAR (25)
+
+  /*
+  CONSTRAINT pk_paciente PRIMARY KEY (nss),
+  CONSTRAINT chk_nombre CHECK (nombre REGEX '^[a-zA-Z\s]+$'),
+  CONSTRAINT chk_apellidos CHECK (apellido1 REGEX '^[a-zA-Z\s]+$' AND apellido2 REGEX '^[a-zA-Z\s]+$'),
+  CONSTRAINT chk_fecha_nacimiento CHECK (fecha_nacimiento <= NOW()),
+  CONSTRAINT chk_sexo CHECK (sexo <> ''),
+  */
+);
+  
+-- Tabla historial
+DROP TABLE IF EXISTS historial;
+CREATE TABLE IF NOT EXISTS historial (
+  id INT (8) NOT NULL AUTO_INCREMENT,
+  grupo_sanguineo CHAR (2) NOT NULL,
+  rh CHAR (1) NOT NULL,
+  -- Vista tipo_sanguíneo
+  observaciones VARCHAR (255),
+  vacunas VARCHAR (255),
+  alergias VARCHAR (255),
+  nss INT (8),
+  CONSTRAINT pk_historial PRIMARY KEY (id),
+  CONSTRAINT fk_his_nss_pac_nss FOREIGN KEY (nss)
+    REFERENCES paciente (nss)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
+);
+
+-- Tabla linea_historial
+DROP TABLE IF EXISTS linea_historial;
+CREATE TABLE IF NOT EXISTS linea_historial (
+  historial INT (8) NOT NULL,
+  linea INT (6) NOT NULL AUTO_INCREMENT,
+  fecha DATE NOT NULL,
+  firma NOT NULL
+  CONSTRAINT pk_lin_his PRIMARY KEY (historial,linea),
+  CONSTRAINT fk_lin_his_his_his_id FOREIGN KEY (historial)
+    REFERENCES historial (id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+-- Tabla trabajador
+DROP TABLE IF EXISTS linea_historial;
+CREATE TABLE IF NOT EXISTS linea_historial (
+
+  
+
+  
+  
+
 DROP TABLE IF EXISTS sala;
 CREATE TABLE IF NOT EXISTS sala (
   id INT,
