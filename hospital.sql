@@ -1,5 +1,6 @@
 DROP DATABASE IF EXISTS hospital;
 CREATE DATABASE IF NOT EXISTS hospital;
+USE hospital;
 ---
 
 -- Tabla trabajador
@@ -102,26 +103,17 @@ CREATE TABLE IF NOT EXISTS linea_historial (
   historial INT (8) NOT NULL,
   linea INT (6) NOT NULL AUTO_INCREMENT,
   fecha DATE NOT NULL,
-  firma INT (9) NOT NULL
+  firma INT (9) NOT NULL,
   CONSTRAINT pk_lin_his PRIMARY KEY (historial,linea),
   CONSTRAINT fk_lin_his_his_his_id FOREIGN KEY (historial)
     REFERENCES historial (id)
     ON DELETE CASCADE
-    ON UPDATE CASCADE
-  CONSTRAINT fk_lin_his_fir_tra_num_col FOREIGN KEY (firma)
-    REFERENCES trabajador (numero_colegiado)
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_lin_his_fir_med_num_col FOREIGN KEY (firma)
+    REFERENCES medico (numero_colegiado)
     ON DELETE RESTRICT
     ON UPDATE CASCADE
 );
-
--- Tabla trabajador
-DROP TABLE IF EXISTS linea_historial;
-CREATE TABLE IF NOT EXISTS linea_historial (
-
-  
-
-  
-  
 
 DROP TABLE IF EXISTS sala;
 CREATE TABLE IF NOT EXISTS sala (
@@ -212,3 +204,26 @@ INSERT INTO enfermedad (id, nombre,causa,sintoma,cura, sexo, sala) VALUES
   (31, ' ', 'Oler queso y beber agua de lluvia no purificada', 'Muy incómodos para el que la padece', 'Se pincha la cabeza hinchada y luego se vuelve a inflar hasta el tama¤o correcto con una máquina inteligente', 'T', 14), 
   (32, ' ', 'Oler queso y beber agua de lluvia no purificada', 'Muy incómodos para el que la padece', 'Se pincha la cabeza hinchada y luego se vuelve a inflar hasta el tama¤o correcto con una máquina inteligente', 'T', 14), 
   (33, ' ', 'Oler queso y beber agua de lluvia no purificada', 'Muy incómodos para el que la padece', 'Se pincha la cabeza hinchada y luego se vuelve a inflar hasta el tama¤o correcto con una máquina inteligente', 'T', 14), 
+
+DROP TABLE IF EXISTS evento;
+CREATE TABLE IF NOT EXISTS evento (
+  numero_colegiado INT (9) NOT NULL,
+  historial INT (8) NOT NULL,
+  linea INT (6) NOT NULL AUTO_INCREMENT,
+  id INT,
+  CONSTRAINT pk_evento PRIMARY KEY (id),
+  CONSTRAINT fk_eve_num_col_tra_num_col FOREIGN KEY (numero_colegiado)
+    REFERENCES trabajador (numero_colegiado)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_eve_his_lin_his_his_lin_his FOREIGN KEY (historial,linea)
+    REFERENCES linea_historial (historial, linea)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_eve_id_sal_id FOREIGN KEY (id)
+    REFERENCES sala (id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+  
+
