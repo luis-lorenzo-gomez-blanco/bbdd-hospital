@@ -28,12 +28,48 @@ CREATE TABLE IF NOT EXISTS trabajador (
   passwd VARCHAR (128),
   -- Tipo 'M'edico / 'E'nfermera
   tipo CHAR (1) NOT NULL,
+  -- Categoría médicos: Junior, Doctor, Consultor
+  -- Categoría enfermera: Auxiliar, Enfermera, 
+  experiencia 
+  categoria VARCHAR (25) NOT NULL,
   CONSTRAINT pk_trabajador PRIMARY KEY (numero_colegiado),
   CONSTRAINT un_tra_nif UNIQUE (nif),
   CONSTRAINT chk_tra_sexo CHECK (sexo <> ''),
   CONSTRAINT chk_tra_activo CHECK (activo = 'S' OR activo = 'N'),
   CONSTRAINT chk_tra_tipo CHECK (tipo = 'M' OR activo = 'E')
 );
+/*
+-- Tabla trabajador ------------------------------------------------------------
+DROP TABLE IF EXISTS trabajador;
+CREATE TABLE IF NOT EXISTS trabajador (
+  numero_colegiado INT (9) NOT NULL,
+  nif CHAR (9) NOT NULL,
+  nombre VARCHAR (25) NOT NULL,
+  apellidos VARCHAR (50) NOT NULL,
+  apellido2 VARCHAR (25),
+  -- VISTA apellidos
+  sexo ENUM('H','M'),
+  telefono VARCHAR (15),
+  direccion VARCHAR (50),
+  localidad VARCHAR (50),
+  provincia VARCHAR (50),
+  pais VARCHAR (50),
+  activo CHAR (1),
+  foto BLOB,
+  passwd VARCHAR (128),
+  -- Tipo 'M'edico / 'E'nfermera
+  tipo CHAR (1) NOT NULL,
+  -- Categoría médicos: Junior, Doctor, Consultor
+  -- Categoría enfermera: Auxiliar, Enfermera, 
+  experiencia 
+  categoria VARCHAR (25) NOT NULL,
+  CONSTRAINT pk_trabajador PRIMARY KEY (numero_colegiado),
+  CONSTRAINT un_tra_nif UNIQUE (nif),
+  CONSTRAINT chk_tra_sexo CHECK (sexo <> ''),
+  CONSTRAINT chk_tra_activo CHECK (activo = 'S' OR activo = 'N'),
+  CONSTRAINT chk_tra_tipo CHECK (tipo = 'M' OR activo = 'E')
+);
+*/
 --------------------------------------------------------------------------------
 
 -- Tabla médico ----------------------------------------------------------------
