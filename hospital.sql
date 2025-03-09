@@ -9,90 +9,70 @@ USE hospital;
 /* Tablas */
 
 -- Tabla trabajador ------------------------------------------------------------
-DROP TABLE IF EXISTS trabajador;
+
 CREATE TABLE IF NOT EXISTS trabajador (
   numero_colegiado INT (9) NOT NULL,
-  nif CHAR (9) NOT NULL,
+  dni CHAR (9) NOT NULL,
   nombre VARCHAR (25) NOT NULL,
   apellido1 VARCHAR (25) NOT NULL,
   apellido2 VARCHAR (25),
-  -- VISTA apellidos
-  sexo ENUM('H','M'),
-  telefono VARCHAR (15),
-  direccion VARCHAR (50),
-  localidad VARCHAR (50),
-  provincia VARCHAR (50),
-  pais VARCHAR (50),
-  activo CHAR (1),
+  sexo ENUM('H','M') NOT NULL,
+  fecha_nacimiento DATE NOT NULL,
+  -- Tipo 'M'edico / 'E'nfermera
+  tipo ENUM ('M','E') NOT NULL,
+  -- Categoría médicos: Médico en Prácticas, Doctor, Jefe de Medicina
+  -- Categoría enfermera: Enfermera en Prácticas, Enfermera, Jefa de Enfermería
+  categoria ENUM ('MP','D','JF','EP','E','JE') NOT NULL,
+  -- De 0 a 999
+  experiencia INT(3) NOT NULL,
+  telefono VARCHAR (15) NOT NULL,
+  direccion VARCHAR (50)  NOT NULL,
+  localidad VARCHAR (50) NOT NULL,
+  provincia VARCHAR (50) NOT NULL,
+  nacionalidad VARCHAR (50) NOT NULL,
   foto BLOB,
   passwd VARCHAR (128),
-  -- Tipo 'M'edico / 'E'nfermera
-  tipo CHAR (1) NOT NULL,
-  -- Categoría médicos: Junior, Doctor, Consultor
-  -- Categoría enfermera: Auxiliar, Enfermera, 
-  experiencia 
-  categoria VARCHAR (25) NOT NULL,
+  activo ENUM ('S','N') NOT NULL,
   CONSTRAINT pk_trabajador PRIMARY KEY (numero_colegiado),
-  CONSTRAINT un_tra_nif UNIQUE (nif),
+  CONSTRAINT un_tra_dni UNIQUE (dni),
   CONSTRAINT chk_tra_sexo CHECK (sexo <> ''),
-  CONSTRAINT chk_tra_activo CHECK (activo = 'S' OR activo = 'N'),
-  CONSTRAINT chk_tra_tipo CHECK (tipo = 'M' OR activo = 'E')
+  -- CONSTRAINT chk_tra_edad CHECK ((NOW()-fecha_nacimiento >= 22) AND (NOW()-fecha_nacimiento <= 67)),
+  CONSTRAINT chk_tra_tipo CHECK (tipo <> ''),
+  CONSTRAINT chk_tra_categoria CHECK (categoria <> ''),
+  CONSTRAINT chk_tra_experiencia CHECK (experiencia >= 0),
+  CONSTRAINT chk_tra_activo CHECK (activo <> '')
 );
-/*
--- Tabla trabajador ------------------------------------------------------------
-DROP TABLE IF EXISTS trabajador;
-CREATE TABLE IF NOT EXISTS trabajador (
-  numero_colegiado INT (9) NOT NULL,
-  nif CHAR (9) NOT NULL,
-  nombre VARCHAR (25) NOT NULL,
-  apellidos VARCHAR (50) NOT NULL,
-  apellido2 VARCHAR (25),
-  -- VISTA apellidos
-  sexo ENUM('H','M'),
-  telefono VARCHAR (15),
-  direccion VARCHAR (50),
-  localidad VARCHAR (50),
-  provincia VARCHAR (50),
-  pais VARCHAR (50),
-  activo CHAR (1),
-  foto BLOB,
-  passwd VARCHAR (128),
-  -- Tipo 'M'edico / 'E'nfermera
-  tipo CHAR (1) NOT NULL,
-  -- Categoría médicos: Junior, Doctor, Consultor
-  -- Categoría enfermera: Auxiliar, Enfermera, 
-  experiencia 
-  categoria VARCHAR (25) NOT NULL,
-  CONSTRAINT pk_trabajador PRIMARY KEY (numero_colegiado),
-  CONSTRAINT un_tra_nif UNIQUE (nif),
-  CONSTRAINT chk_tra_sexo CHECK (sexo <> ''),
-  CONSTRAINT chk_tra_activo CHECK (activo = 'S' OR activo = 'N'),
-  CONSTRAINT chk_tra_tipo CHECK (tipo = 'M' OR activo = 'E')
-);
-*/
 --------------------------------------------------------------------------------
 
 -- Tabla médico ----------------------------------------------------------------
 DROP TABLE IF EXISTS medico;
 CREATE TABLE IF NOT EXISTS medico (
-  numero_colegiado INT (9) NOT NULL,
-  CONSTRAINT pk_medico PRIMARY KEY (numero_colegiado),
-  CONSTRAINT fk_med_num_col_tra_num_col FOREIGN KEY (numero_colegiado)
+  numero_colegiado_medico INT (9) NOT NULL,
+  -- Cualificación 'P'siquiatría / 'C'irugía
+  especialidad ENUM ('P','C'),
+  CONSTRAINT pk_medico PRIMARY KEY (numero_colegiado_medico),
+  CONSTRAINT fk_med_num_col_tra_num_col FOREIGN KEY (numero_colegiado_medico)
     REFERENCES trabajador (numero_colegiado)
     ON DELETE CASCADE
-    ON UPDATE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT chk_med_es CHECK (
+    (SELECT tipo FROM trabajador WHERE numero_colegiado_medico = numero_colegiado) = 'M'),
+  CONSTRAINT chk_med_especialidad CHECK (especialidad <> '')
   );
 --------------------------------------------------------------------------------
 
 -- Tabla enfermera -------------------------------------------------------------
 DROP TABLE IF EXISTS enfermera;
 CREATE TABLE IF NOT EXISTS enfermera (
-  numero_colegiado INT (9) NOT NULL,
+  numero_colegiado_enfermera INT (9) NOT NULL,
   CONSTRAINT pk_enfermera PRIMARY KEY (numero_colegiado),
   CONSTRAINT fk_enf_num_col_tra_num_col FOREIGN KEY (numero_colegiado)
     REFERENCES trabajador (numero_colegiado)
     ON DELETE CASCADE
-    ON UPDATE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT chk_enfermera CHECK (
+    (SELECT tipo FROM trabajador WHERE numero_colegiado_enfermera = numero_colegiado) = 'E'
+  )
 );
 --------------------------------------------------------------------------------
 
@@ -103,9 +83,8 @@ CREATE TABLE IF NOT EXISTS paciente (
   nombre VARCHAR (25) NOT NULL,
   apellido1 VARCHAR (25) NOT NULL,
   apellido2 VARCHAR (25),
-  -- VISTA apellidos
   fecha_nacimiento DATE NOT NULL,
-  sexo ENUM('H','M'),
+  sexo ENUM('H','M') NOT NULL,
   telefono VARCHAR (15),
   direccion VARCHAR (50),
   localidad VARCHAR (50),
