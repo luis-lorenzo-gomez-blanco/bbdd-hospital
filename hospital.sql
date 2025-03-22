@@ -36,7 +36,6 @@ CREATE TABLE IF NOT EXISTS trabajador (
   CONSTRAINT pk_trabajador PRIMARY KEY (numero_colegiado),
   CONSTRAINT un_tra_dni UNIQUE (dni),
   CONSTRAINT chk_tra_sexo CHECK (sexo <> ''),
-  -- CONSTRAINT chk_tra_edad CHECK ((NOW()-fecha_nacimiento >= 22) AND (NOW()-fecha_nacimiento <= 67)),
   CONSTRAINT chk_tra_tipo CHECK (tipo <> ''),
   CONSTRAINT chk_tra_categoria CHECK (categoria <> ''),
   CONSTRAINT chk_tra_experiencia CHECK (experiencia >= 0),
