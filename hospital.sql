@@ -77,8 +77,8 @@ CREATE TABLE IF NOT EXISTS enfermera (
 --------------------------------------------------------------------------------
 
 -- Tabla paciente --------------------------------------------------------------
-DROP TABLE IF EXISTS paciente;
-CREATE TABLE IF NOT EXISTS paciente (
+DROP TABLE IF EXISTS persona;
+CREATE TABLE IF NOT EXISTS persona (
   nss INT (8) NOT NULL,
   nombre VARCHAR (25) NOT NULL,
   apellido1 VARCHAR (25) NOT NULL,
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS paciente (
   pais VARCHAR (50),
   seguro VARCHAR (50),
   numero_seguro VARCHAR (25),
-  CONSTRAINT pk_paciente PRIMARY KEY (nss),
+  CONSTRAINT pk_persona PRIMARY KEY (nss),
   -- CONSTRAINT chk_nombre CHECK (nombre REGEX '^[a-zA-Z\s]+$'),
   -- CONSTRAINT chk_apellidos CHECK (apellido1 REGEX '^[a-zA-Z\s]+$' AND apellido2 REGEX '^[a-zA-Z\s]+$'),
   CONSTRAINT chk_sexo CHECK (sexo <> '')
@@ -100,20 +100,20 @@ CREATE TABLE IF NOT EXISTS paciente (
 --------------------------------------------------------------------------------
 
 -- Tabla historial -------------------------------------------------------------
-DROP TABLE IF EXISTS historial;
-CREATE TABLE IF NOT EXISTS historial (
-  id INT (8) NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS paciente;
+CREATE TABLE IF NOT EXISTS paciente (
+  nss INT (8),
+  historial INT (4),
   grupo_sanguineo CHAR (2) NOT NULL,
   rh CHAR (1) NOT NULL,
   -- Vista tipo_sanguíneo
   observaciones VARCHAR (255),
   vacunas VARCHAR (255),
   alergias VARCHAR (255),
-  nss INT (8),
-  CONSTRAINT pk_historial PRIMARY KEY (id),
-  CONSTRAINT fk_his_nss_pac_nss FOREIGN KEY (nss)
+  CONSTRAINT pk_historial PRIMARY KEY (nss,historial),
+  CONSTRAINT fk_pac_nss_per_nss FOREIGN KEY (nss)
     REFERENCES paciente (nss)
-    ON DELETE SET NULL
+    ON DELETE CASCADE
     ON UPDATE CASCADE
 );
 --------------------------------------------------------------------------------
@@ -121,13 +121,18 @@ CREATE TABLE IF NOT EXISTS historial (
 -- Tabla linea_historial -------------------------------------------------------
 DROP TABLE IF EXISTS linea_historial;
 CREATE TABLE IF NOT EXISTS linea_historial (
-  historial INT (8) NOT NULL,
-  linea INT (6) NOT NULL AUTO_INCREMENT,
+  nss INT (8),
+  historial INT (4),
+  linea INT (4),
   fecha DATE NOT NULL,
   firma INT (9) NOT NULL,
-  CONSTRAINT pk_lin_his PRIMARY KEY (linea),
-  CONSTRAINT fk_lin_his_his_his_id FOREIGN KEY (historial)
-    REFERENCES historial (id)
+  CONSTRAINT pk_lin_his PRIMARY KEY (nss,historial,linea),
+  CONSTRAINT fk_linhis_nss_his_nss FOREIGN KEY (nss)
+    REFERENCES historial (nss)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_linhis_his_his_his FOREIGN KEY (historial)
+    REFERENCES historial (historial)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT fk_lin_his_fir_med_num_col FOREIGN KEY (firma)
